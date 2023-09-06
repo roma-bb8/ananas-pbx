@@ -1,0 +1,45 @@
+version: '3.8'
+
+networks:
+    pbx:
+        name: ananas-pbx-network
+        ipam:
+            driver: default
+            config:
+                -   subnet: 192.168.0.0/24
+
+services:
+    asterisk:
+        build:
+            dockerfile: Dockerfile
+            context: ./asterisk/
+            args:
+                - ASTERISK_VERSION=${ASTERISK_VERSION}
+        container_name: asterisk
+        # restart: always
+        volumes:
+            - ./asterisk/etc/asterisk/:/etc/asterisk/
+            # - ./etc/sounds/:/var/lib/asterisk/sounds/
+            # - ./etc/staff/:/var/lib/asterisk/staff/
+            # - ./etc/agi-bin/:/var/lib/asterisk/agi-bin/
+        ports:
+            - '${UDP_PORT_SIP}:${UDP_PORT_SIP}/udp'
+            - '${UDP_PORT_IAX}:${UDP_PORT_IAX}/udp'
+        networks:
+            pbx:
+                ipv4_address: 192.168.0.103
+    python:
+        build:
+            dockerfile: Dockerfile
+            context: ./python/
+            args:
+                - PYTHON_VERSION=${PYTHON_VERSION}
+        container_name: python
+        # restart: always
+        volumes:
+            - ./python/src/:/usr/src/app/
+        ports:
+            - '${WEB_SOCKET_PORT}:${WEB_SOCKET_PORT}/tcp'
+        networks:
+            pbx:
+                ipv4_address: 192.168.0.104
