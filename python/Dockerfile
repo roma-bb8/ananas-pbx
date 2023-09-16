@@ -26,4 +26,4 @@ RUN pip install torch
 VOLUME /usr/src/app
 EXPOSE 55150/tcp
 
-ENTRYPOINT ["python", "-u", "./main.py"]
+ENTRYPOINT ["python", "-u", "./pbxV3.py"]
