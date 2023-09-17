@@ -99,7 +99,7 @@ def process_folder(
         audio_denoised = audio_denoised[0].cpu().numpy()
         audio_denoised = audio_denoised / np.max(np.abs(audio_denoised))
 
-        # sig = float2pcm(audio_denoised, dtype='int16')  # 22050
+        sig = float2pcm(audio_denoised, dtype='int16')  # 22050
         # output_file = input_mel_file.replace('.mel', '.wav')
         # write(input_mel_file, 22050, sig)  # 22050
         # print('<<--', output_file)
@@ -107,11 +107,8 @@ def process_folder(
 
         original_sample_rate = 22050
         target_sample_rate = 8000
-        sig = signal.resample(
-            audio_denoised,
-            int(len(audio_denoised) * target_sample_rate / original_sample_rate)
-        ).astype('int16')
+        sig = signal.resample(sig, int(len(sig) * target_sample_rate / original_sample_rate)).astype('int16')
 
         # write(input_mel_file, 8000, sig)
 
-        return sig
+        return bytearray(sig.tobytes())
