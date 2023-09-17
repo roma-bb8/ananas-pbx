@@ -92,7 +92,7 @@ def process_folder(
     # vocoder, denoiser = load_vocoder(vocoder_path, vocoder_config_path)
 
     with torch.no_grad():
-        # input_mel_file = input_mel_folder + f'{file_name}.wav'
+        input_mel_file = input_mel_folder + f'{file_name}.wav'
         # mel_file = torch.load(input_mel_file)
         audio = vocoder(mel).float()[0]
         audio_denoised = denoiser(audio, strength=denoising_strength)[0].float()
@@ -111,5 +111,7 @@ def process_folder(
             audio_denoised,
             int(len(audio_denoised) * target_sample_rate / original_sample_rate)
         ).astype('int16')
+
+        # write(input_mel_file, 8000, sig)
 
         return sig
