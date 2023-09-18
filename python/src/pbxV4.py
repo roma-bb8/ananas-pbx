@@ -267,8 +267,6 @@ async def main():
             lines[uuid]['buffer'] = bytearray()
             asyncio.create_task(init_transcription(uuid))
 
-        recognize_silence(uuid, audio)
-        lines[uuid]['buffer'] += audio
         if 'speak' in lines[uuid]:
             if 0 != lines[uuid]['speak'].sig_len:
                 speak = lines[uuid]['speak']
@@ -281,7 +279,10 @@ async def main():
                     return hunk
                 else:
                     del lines[uuid]['speak']
+                    return None
 
+        recognize_silence(uuid, audio)
+        lines[uuid]['buffer'] += audio
         if lines[uuid]['silence'] > WAIT_SLIN:
             if 'socket' in lines[uuid]:
                 lines[uuid]['socket'].send(lines[uuid]['buffer'])

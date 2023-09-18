@@ -61,41 +61,43 @@ async def main():
     WEIGHTS = torch.load('/usr/src/models/RADTTS-Lada.pt', map_location='cpu')
     RAD_TTS_CONFIG = radtts_config()
 
+    def init_speak(uuid):
+        lines[uuid] = {}
+        speak = Speaker()
+        speak.sig = infer(
+            WEIGHTS,
+            VOCODER,
+            DENOISER,
+            'Вітаю! Я - Анжеліка, продавець-консультант компанії АНАНАС. Як я можу Вам допомогти сьогодні?',
+            '',
+            '',
+            '',
+            RAD_TTS_CONFIG['sigma'],
+            RAD_TTS_CONFIG['sigma_tkndur'],
+            RAD_TTS_CONFIG['sigma_f0'],
+            RAD_TTS_CONFIG['sigma_energy'],
+            RAD_TTS_CONFIG['f0_mean'],
+            RAD_TTS_CONFIG['f0_std'],
+            RAD_TTS_CONFIG['energy_mean'],
+            RAD_TTS_CONFIG['energy_std'],
+            RAD_TTS_CONFIG['token_dur_scaling'],
+            RAD_TTS_CONFIG['denoising_strength'],
+            RAD_TTS_CONFIG['n_takes'],
+            RAD_TTS_CONFIG['output_dir'],
+            RAD_TTS_CONFIG['use_amp'],
+            False,
+            RAD_TTS_CONFIG['seed'],
+            RAD_TTS_CONFIG['file_name'],
+            RAD_TTS_CONFIG['data_config_p'],
+            RAD_TTS_CONFIG['model_config_p'],
+        )
+        speak.sig_len = len(speak.sig)
+        lines[uuid]['speak'] = speak
+        pass
+
     def on_audio(uuid, peer_name, audio):
         if 0 == len(audio):
             return audiosocket.HANGUP_CALL_MESSAGE
-        if uuid is not lines:
-            lines[uuid] = {}
-            speak = Speaker()
-            speak.sig = infer(
-                WEIGHTS,
-                VOCODER,
-                DENOISER,
-                'Вітаю! Я - Анжеліка, продавець-консультант компанії АНАНАС. Як я можу Вам допомогти сьогодні?',
-                '',
-                '',
-                '',
-                RAD_TTS_CONFIG['sigma'],
-                RAD_TTS_CONFIG['sigma_tkndur'],
-                RAD_TTS_CONFIG['sigma_f0'],
-                RAD_TTS_CONFIG['sigma_energy'],
-                RAD_TTS_CONFIG['f0_mean'],
-                RAD_TTS_CONFIG['f0_std'],
-                RAD_TTS_CONFIG['energy_mean'],
-                RAD_TTS_CONFIG['energy_std'],
-                RAD_TTS_CONFIG['token_dur_scaling'],
-                RAD_TTS_CONFIG['denoising_strength'],
-                RAD_TTS_CONFIG['n_takes'],
-                RAD_TTS_CONFIG['output_dir'],
-                RAD_TTS_CONFIG['use_amp'],
-                False,
-                RAD_TTS_CONFIG['seed'],
-                RAD_TTS_CONFIG['file_name'],
-                RAD_TTS_CONFIG['data_config_p'],
-                RAD_TTS_CONFIG['model_config_p'],
-            )
-            speak.sig_len = len(speak.sig)
-            lines[uuid]['speak'] = speak
 
         if 'speak' in lines[uuid]:
             if 0 != lines[uuid]['speak'].sig_len:
@@ -110,6 +112,8 @@ async def main():
                 else:
                     del lines[uuid]['speak']
         pass
+
+    init_speak('0acafcfb742f481caedf384dd27c6365')
 
     server = await audiosocket.start_server(
         on_audio,
