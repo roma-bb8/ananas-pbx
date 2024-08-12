@@ -1,4 +1,4 @@
-# ANANAS PBX
+# GPT Phone bot
 
 ### Up PBX
 
